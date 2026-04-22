@@ -1,0 +1,178 @@
+import { mkdtempSync } from "node:fs";
+import { join, dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { tmpdir } from "node:os";
+import { existsSync } from "node:fs";
+import { auditLoop } from "./engine/loop.js";
+import { loadFromDirectory } from "./input/from-directory.js";
+import { loadFromPostObject, type BloggerPost } from "./input/from-post-object.js";
+import {
+  publish,
+  commitRepoCopy,
+  defaultLocalRoot,
+  type PublishResult,
+} from "./output/publisher.js";
+import { writeReport } from "./output/disk-writer.js";
+import { loadHistory } from "./output/history.js";
+import { buildShakespeerInstructions } from "./output/shakespeer-instructions.js";
+import type {
+  AuditInput,
+  AuditReport,
+  ParagraphMetric,
+  PriorIssueStatus,
+  Verdict,
+} from "./types.js";
+import type { ShakespeerInstructionsPayload } from "./output/shakespeer-instructions.js";
+
+export interface AuditOptions {
+  sourceDir?: string;
+  generatedPost?: BloggerPost;
+  runLlmLayers?: boolean;
+  publishToLocal?: boolean;
+  publishToRepo?: boolean;
+  commit?: boolean;
+  outputDir?: string;
+  repoRoot?: string;
+  localRoot?: string;
+  targetScore?: number;
+}
+
+export interface AuditHumanSummary {
+  verdict: Verdict;
+  verdictReason: string;
+  topActions: string[];
+  tldr: string;
+}
+
+export interface AuditResult {
+  version: number;
+  isFinal: boolean;
+  verdict: Verdict;
+  verdictReason: string;
+  finalScore: number;
+  criticalCount: number;
+  iterationsCount: number;
+  totalCostUsd: number;
+  status: AuditReport["status"];
+  stopReason: string;
+  shakespeerInstructions: ShakespeerInstructionsPayload;
+  humanSummary: AuditHumanSummary;
+  paragraphMetrics: ParagraphMetric[];
+  priorIssues: PriorIssueStatus[];
+  regressions: PriorIssueStatus[];
+  publishedLocations: PublishResult["locations"];
+  fullReport: AuditReport;
+}
+
+function resolveRepoRoot(): string {
+  const here = dirname(fileURLToPath(import.meta.url));
+  let dir = here;
+  for (let i = 0; i < 10; i++) {
+    if (existsSync(join(dir, "package.json"))) return dir;
+    dir = dirname(dir);
+  }
+  return resolve(here, "..");
+}
+
+function buildHumanSummary(report: AuditReport): AuditHumanSummary {
+  const final = report.iterations[report.iterations.length - 1];
+  const findings = final?.findings ?? [];
+  const order = { critical: 0, fail: 1, warn: 2, info: 3 } as const;
+  const top = [...findings]
+    .sort((a, b) => order[a.severity] - order[b.severity])
+    .slice(0, 5)
+    .map((f) => `[${f.severity}] ${f.checkId} — ${f.evidence}`);
+  const tldr = `${report.brand} · ${report.postType} · v${report.version}${report.isFinal ? " FINAL" : ""} · score ${report.finalScore}/100 · ${report.criticalCount} critical · ${report.iterations.length} iter · $${report.totalCostUsd.toFixed(3)}`;
+  return {
+    verdict: report.verdict,
+    verdictReason: report.verdictReason,
+    topActions: top,
+    tldr,
+  };
+}
+
+export async function audit(opts: AuditOptions): Promise<AuditResult> {
+  if (!opts.sourceDir && !opts.generatedPost) {
+    throw new Error("audit() requires either sourceDir or generatedPost");
+  }
+
+  const input: AuditInput = opts.sourceDir
+    ? loadFromDirectory(opts.sourceDir)
+    : loadFromPostObject(opts.generatedPost as BloggerPost);
+
+  const repoRoot = opts.repoRoot ?? resolveRepoRoot();
+  const repoAuditRoot = join(repoRoot, "audit-reports");
+  const localAuditRoot = opts.localRoot ?? defaultLocalRoot();
+
+  const priorRuns = loadHistory(repoAuditRoot, input.brand, input.slug);
+
+  const usingExplicitOut = !!opts.outputDir;
+  const stagingDir = opts.outputDir
+    ? resolve(opts.outputDir)
+    : mkdtempSync(join(tmpdir(), "blog-buster-"));
+
+  const runLlmLayers = opts.runLlmLayers ?? true;
+  const report = await auditLoop(input, {
+    outputDir: stagingDir,
+    runLlmLayers,
+    priorRuns,
+  });
+
+  writeReport(report, stagingDir);
+
+  const publishLocal = opts.publishToLocal ?? !usingExplicitOut;
+  const publishRepo = opts.publishToRepo ?? !usingExplicitOut;
+
+  let publishResult: PublishResult = { locations: [] };
+  if (publishLocal || publishRepo) {
+    publishResult = publish(report, stagingDir, {
+      localRoot: publishLocal ? localAuditRoot : undefined,
+      repoRoot: publishRepo ? repoAuditRoot : undefined,
+    });
+  }
+
+  if (opts.commit && publishRepo) {
+    const repoLoc = publishResult.locations.find((l) => l.kind === "repo");
+    if (repoLoc) {
+      commitRepoCopy(repoAuditRoot, repoLoc.relPath, report);
+    }
+  }
+
+  const shakespeerInstructions = buildShakespeerInstructions(
+    report,
+    opts.targetScore ?? 90,
+  );
+
+  return {
+    version: report.version,
+    isFinal: report.isFinal,
+    verdict: report.verdict,
+    verdictReason: report.verdictReason,
+    finalScore: report.finalScore,
+    criticalCount: report.criticalCount,
+    iterationsCount: report.iterations.length,
+    totalCostUsd: report.totalCostUsd,
+    status: report.status,
+    stopReason: report.stopReason,
+    shakespeerInstructions,
+    humanSummary: buildHumanSummary(report),
+    paragraphMetrics: report.paragraphMetrics,
+    priorIssues: report.priorIssues,
+    regressions: report.priorIssues.filter((p) => p.status === "regressed"),
+    publishedLocations: publishResult.locations,
+    fullReport: report,
+  };
+}
+
+export type { BloggerPost } from "./input/from-post-object.js";
+export type {
+  AuditReport,
+  AuditInput,
+  ParagraphMetric,
+  PriorIssueStatus,
+  Verdict,
+} from "./types.js";
+export type {
+  ShakespeerInstructionsPayload,
+  ShakespeerInstruction,
+} from "./output/shakespeer-instructions.js";
