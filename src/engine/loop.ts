@@ -28,7 +28,7 @@ import type { PriorRun } from "../output/history.js";
 import { diffAgainstPrior, priorFindingsFor } from "../output/history.js";
 import { reconcilePreflight } from "../output/preflight.js";
 
-export const BLOG_BUSTER_VERSION = "0.1.1";
+export const BLOG_BUSTER_VERSION = "0.1.2";
 
 export interface LoopOptions {
   outputDir: string;
