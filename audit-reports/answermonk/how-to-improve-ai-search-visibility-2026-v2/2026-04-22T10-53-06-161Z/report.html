@@ -1,0 +1,433 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Audit v1 — how-to-improve-ai-search-visibility-2026-v2</title>
+<style>
+  body{font:14px/1.55 -apple-system,BlinkMacSystemFont,sans-serif;margin:2rem;color:#222;max-width:1150px}
+  h1{margin-bottom:.2rem}
+  h2{margin-top:2rem;border-bottom:1px solid #ddd;padding-bottom:.3rem}
+  .meta{color:#666;margin-bottom:1.5rem}
+  section.for-humans,section.for-shakespeer{border:2px solid;border-radius:8px;padding:1rem 1.2rem;margin-bottom:1rem}
+  section.for-humans{border-color:#2980b9;background:#f5f9fc}
+  section.for-shakespeer{border-color:#8e44ad;background:#f9f4fb}
+  .audience-tag{font-size:11px;letter-spacing:1.2px;font-weight:700;color:#555;margin-bottom:.5rem}
+  .audience-tag.shakespeer{color:#6c3483}
+  .verdict{display:inline-block;padding:8px 18px;border-radius:6px;font-weight:700;font-size:18px;letter-spacing:.5px;margin-bottom:.5rem}
+  .tldr{color:#444;font-size:13px;margin:.4rem 0}
+  ul.actions{margin:0;padding-left:1.2rem}
+  ul.actions li{margin:.3rem 0}
+  pre.shakespeer-payload{background:#fff;border:1px solid #d7c3dc;padding:10px;font-size:11.5px;overflow-x:auto;max-height:500px}
+  .summary{background:#f7f7f9;padding:1rem;border-radius:6px;margin-bottom:1rem}
+  .scores{color:#555;margin:.4rem 0 .8rem;font-size:13px}
+  section.iter{border:1px solid #e4e4e4;border-radius:6px;padding:1rem;margin-bottom:1.2rem}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:.5rem}
+  table.para-metrics{font-size:11.5px}
+  table.para-metrics th,table.para-metrics td{padding:3px 6px}
+  th,td{text-align:left;padding:6px 8px;border-bottom:1px solid #eee;vertical-align:top}
+  th{background:#fafafa}
+  code{background:#f1f1f1;padding:1px 5px;border-radius:3px;font-size:12px}
+  .pill{color:white;padding:2px 8px;border-radius:10px;font-size:10.5px;font-weight:600;text-transform:uppercase}
+  .flags{color:#b55;font-size:11px}
+  pre{background:#f7f7f7;padding:8px;border-radius:4px;font-size:11px;overflow-x:auto}
+  details{margin-top:4px}
+  summary{cursor:pointer;color:#2980b9;font-size:12px}
+</style></head><body>
+  
+    <h1>how-to-improve-ai-search-visibility-2026-v2 <span style="color:#888;font-size:16px">[v1]</span></h1>
+    <div class="meta">brand: AnswerMonk · type: <code>procedural</code> · 2026-04-22T10:53:06.161Z → 2026-04-22T10:53:06.247Z</div>
+  
+  <section class="for-humans">
+    <div class="audience-tag">FOR HUMANS</div>
+    <div class="verdict" style="background:#7b1414;color:#fff">BLOCK</div>
+    <p class="tldr">AnswerMonk · procedural post · version v1 · score 49/100 · 2 critical · 1 LLM iteration(s) · $0.000</p>
+    <p><b>Reason:</b> 2 critical finding(s) — cannot ship: E_author_sameas_missing, E_human_signals_bundle_incomplete</p>
+    <h3>Top 6 action items</h3>
+    <ul class="actions"><li><span class="pill" style="background:#7b1414">critical</span> <b>E_author_sameas_missing</b> — Author has no sameAs URLs (should link LinkedIn + at least one other profile)</li><li><span class="pill" style="background:#7b1414">critical</span> <b>E_human_signals_bundle_incomplete</b> — Only 2/4 human signals present (author+LinkedIn=false, first-party data=false, original visual=true, 3+ citations=false). High AI-content-flag risk</li><li><span class="pill" style="background:#c0392b">fail</span> <b>D_WebPage_missing_required</b> — WebPage missing required: name</li><li><span class="pill" style="background:#c0392b">fail</span> <b>P_faq_count_mismatch</b> — FAQPage schema has 6 Questions but page shows ~17 FAQ pairs</li><li><span class="pill" style="background:#c0392b">fail</span> <b>S_tldr_missing</b> — No TL;DR block (expected &lt;p data-tldr&gt; or paragraph starting with 'TL;DR:')</li><li><span class="pill" style="background:#c0392b">fail</span> <b>E_visible_byline_missing</b> — No visible author byline found in page HTML (rel=author, .author, .byline, or 'By Name Surname')</li></ul>
+  </section>
+  
+  <section class="for-shakespeer">
+    <div class="audience-tag shakespeer">FOR SHAKES-PEER</div>
+    <p>Structured fix plan. Parse the JSON, apply patches, regenerate the post, and re-run <code>blog-buster</code> against the new version.</p>
+    <p><b>Loop protocol:</b> v1 → shakes-peer fixes → v2 → loop continues</p>
+    <pre class="shakespeer-payload">{
+  &quot;meta&quot;: {
+    &quot;version&quot;: 1,
+    &quot;next_version&quot;: 2,
+    &quot;is_final_pending&quot;: false,
+    &quot;is_final&quot;: false,
+    &quot;brand&quot;: &quot;AnswerMonk&quot;,
+    &quot;slug&quot;: &quot;how-to-improve-ai-search-visibility-2026-v2&quot;,
+    &quot;post_type&quot;: &quot;procedural&quot;,
+    &quot;verdict&quot;: &quot;block&quot;,
+    &quot;final_score&quot;: 49,
+    &quot;critical_count&quot;: 2,
+    &quot;target_score&quot;: 90
+  },
+  &quot;fix_order&quot;: [
+    &quot;E_author_sameas_missing&quot;,
+    &quot;E_human_signals_bundle_incomplete&quot;,
+    &quot;D_WebPage_missing_required&quot;,
+    &quot;P_faq_count_mismatch&quot;,
+    &quot;S_tldr_missing&quot;,
+    &quot;E_visible_byline_missing&quot;,
+    &quot;E_no_first_party_data&quot;,
+    &quot;E_insufficient_outbound_citations&quot;,
+    &quot;H_banned_phrases&quot;,
+    &quot;T_internal_links_sparse&quot;,
+    &quot;D_Organization_missing_recommended&quot;,
+    &quot;D_WebPage_missing_recommended&quot;,
+    &quot;D_HowTo_missing_recommended&quot;,
+    &quot;S_visible_last_updated_missing&quot;,
+    &quot;S_word_count_above_band&quot;,
+    &quot;E_author_credentials_missing&quot;,
+    &quot;H_tricolon_density&quot;
+  ],
+  &quot;instructions&quot;: [
+    {
+      &quot;check_id&quot;: &quot;E_author_sameas_missing&quot;,
+      &quot;severity&quot;: &quot;critical&quot;,
+      &quot;layer&quot;: &quot;eeat&quot;,
+      &quot;evidence&quot;: &quot;Author has no sameAs URLs (should link LinkedIn + at least one other profile)&quot;,
+      &quot;action&quot;: &quot;human_fix_required&quot;
+    },
+    {
+      &quot;check_id&quot;: &quot;E_human_signals_bundle_incomplete&quot;,
+      &quot;severity&quot;: &quot;critical&quot;,
+      &quot;layer&quot;: &quot;eeat&quot;,
+      &quot;evidence&quot;: &quot;Only 2/4 human signals present (author+LinkedIn=false, first-party data=false, original visual=true, 3+ citations=false). High AI-content-flag risk&quot;,
+      &quot;action&quot;: &quot;human_fix_required&quot;
+    },
+    {
+      &quot;check_id&quot;: &quot;D_WebPage_missing_required&quot;,
+      &quot;severity&quot;: &quot;fail&quot;,
+      &quot;layer&quot;: &quot;technical&quot;,
+      &quot;evidence&quot;: &quot;WebPage missing required: name&quot;,
+      &quot;action&quot;: &quot;insert_missing&quot;
+    },
+    {
+      &quot;check_id&quot;: &quot;P_faq_count_mismatch&quot;,
+      &quot;severity&quot;: &quot;fail&quot;,
+      &quot;layer&quot;: &quot;technical&quot;,
+      &quot;evidence&quot;: &quot;FAQPage schema has 6 Questions but page shows ~17 FAQ pairs&quot;,
+      &quot;action&quot;: &quot;attempt_rewrite&quot;
+    },
+    {
+      &quot;check_id&quot;: &quot;S_tldr_missing&quot;,
+      &quot;severity&quot;: &quot;fail&quot;,
+      &quot;layer&quot;: &quot;technical&quot;,
+      &quot;evidence&quot;: &quot;No TL;DR block (expected &lt;p data-tldr&gt; or paragraph starting with 'TL;DR:')&quot;,
+      &quot;action&quot;: &quot;attempt_rewrite&quot;
+    },
+    {
+      &quot;check_id&quot;: &quot;E_visible_byline_missing&quot;,
+      &quot;severity&quot;: &quot;fail&quot;,
+      &quot;layer&quot;: &quot;eeat&quot;,
+      &quot;evidence&quot;: &quot;No visible author byline found in page HTML (rel=author, .author, .byline, or 'By Name Surname')&quot;,
+      &quot;action&quot;: &quot;attempt_rewrite&quot;
+    },
+    {
+      &quot;check_id&quot;: &quot;E_no_first_party_data&quot;,
+      &quot;severity&quot;: &quot;fail&quot;,
+      &quot;layer&quot;: &quot;eeat&quot;,
+      &quot;evidence&quot;: &quot;No first-party data signals (\&quot;we tested\&quot;, \&quot;our data shows\&quot;, \&quot;we analyzed\&quot;). Add at least one concrete observation&quot;,
+      &quot;action&quot;: &quot;attempt_rewrite&quot;
+    },
+    {
+      &quot;check_id&quot;: &quot;E_insufficient_outbound_citations&quot;,
+      &quot;severity&quot;: &quot;fail&quot;,
+      &quot;layer&quot;: &quot;eeat&quot;,
+      &quot;evidence&quot;: &quot;Fewer than 3 outbound citations to external sources — weakens trust + reciprocity&quot;,
+      &quot;action&quot;: &quot;attempt_rewrite&quot;
+    },
+    {
+      &quot;check_id&quot;: &quot;H_banned_phrases&quot;,
+      &quot;severity&quot;: &quot;fail&quot;,
+      &quot;layer&quot;: &quot;humanization&quot;,
+      &quot;evidence&quot;: &quot;AI-signature phrases present (2): this comprehensive guide\&quot;, \&quot;fundamentally shifted&quot;,
+      &quot;action&quot;: &quot;attempt_rewrite&quot;
+    },
+    {
+      &quot;check_id&quot;: &quot;T_internal_links_sparse&quot;,
+      &quot;severity&quot;: &quot;warn&quot;,
+      &quot;layer&quot;: &quot;technical&quot;,
+      &quot;evidence&quot;: &quot;Only 1 internal links&quot;,
+      &quot;action&quot;: &quot;attempt_rewrite&quot;
+    },
+    {
+      &quot;check_id&quot;: &quot;D_Organization_missing_recommended&quot;,
+      &quot;severity&quot;: &quot;warn&quot;,
+      &quot;layer&quot;: &quot;technical&quot;,
+      &quot;evidence&quot;: &quot;Organization missing recommended: description&quot;,
+      &quot;action&quot;: &quot;insert_missing&quot;
+    },
+    {
+      &quot;check_id&quot;: &quot;D_WebPage_missing_recommended&quot;,
+      &quot;severity&quot;: &quot;warn&quot;,
+      &quot;layer&quot;: &quot;technical&quot;,
+      &quot;evidence&quot;: &quot;WebPage missing recommended: description, dateModified, isPartOf, primaryImageOfPage, inLanguage&quot;,
+      &quot;action&quot;: &quot;insert_missing&quot;
+    },
+    {
+      &quot;check_id&quot;: &quot;D_HowTo_missing_recommended&quot;,
+      &quot;severity&quot;: &quot;warn&quot;,
+      &quot;layer&quot;: &quot;technical&quot;,
+      &quot;evidence&quot;: &quot;HowTo missing recommended: image, supply, tool&quot;,
+      &quot;action&quot;: &quot;insert_missing&quot;
+    },
+    {
+      &quot;check_id&quot;: &quot;S_visible_last_updated_missing&quot;,
+      &quot;severity&quot;: &quot;warn&quot;,
+      &quot;layer&quot;: &quot;technical&quot;,
+      &quot;evidence&quot;: &quot;No visible 'Last updated' date on page (schema dateModified alone isn't enough for users or AI)&quot;,
+      &quot;action&quot;: &quot;attempt_rewrite&quot;
+    },
+    {
+      &quot;check_id&quot;: &quot;S_word_count_above_band&quot;,
+      &quot;severity&quot;: &quot;warn&quot;,
+      &quot;layer&quot;: &quot;technical&quot;,
+      &quot;evidence&quot;: &quot;1953 words exceeds procedural maximum 1500 (target 1200) — readers drop&quot;,
+      &quot;action&quot;: &quot;attempt_rewrite&quot;
+    },
+    {
+      &quot;check_id&quot;: &quot;E_author_credentials_missing&quot;,
+      &quot;severity&quot;: &quot;warn&quot;,
+      &quot;layer&quot;: &quot;eeat&quot;,
+      &quot;evidence&quot;: &quot;Author has no jobTitle or description — credentials not stated&quot;,
+      &quot;action&quot;: &quot;attempt_rewrite&quot;
+    },
+    {
+      &quot;check_id&quot;: &quot;H_tricolon_density&quot;,
+      &quot;severity&quot;: &quot;warn&quot;,
+      &quot;layer&quot;: &quot;humanization&quot;,
+      &quot;evidence&quot;: &quot;8 tricolons (2.07/500 words; target ≤2)&quot;,
+      &quot;action&quot;: &quot;attempt_rewrite&quot;
+    }
+  ],
+  &quot;regressions&quot;: []
+}</pre>
+  </section>
+  
+  
+  <h2>Critical metrics rubric</h2>
+  <p>Every critical finding measured against its pass target. Weight = score penalty.</p>
+  <table>
+    <thead><tr><th>Check · Category</th><th>Metric · Evidence</th><th>Type</th><th>Pass target</th><th>Weight</th><th>Fix</th></tr></thead>
+    <tbody><tr>
+        <td><code>E_author_sameas_missing</code><br><small>eeat</small></td>
+        <td>Author sameAs URLs<br><small>Author has no sameAs URLs (should link LinkedIn + at least one other profile)</small></td>
+        <td>count</td>
+        <td>Person.sameAs has ≥2 profile URLs incl. LinkedIn</td>
+        <td>20</td>
+        <td>human<br><small>Add Person.sameAs: [linkedin_url, twitter_or_site_url]. LinkedIn is the key verifier</small></td>
+      </tr><tr>
+        <td><code>E_human_signals_bundle_incomplete</code><br><small>eeat</small></td>
+        <td>4 human signals bundle<br><small>Only 2/4 human signals present (author+LinkedIn=false, first-party data=false, original visual=true, 3+ citations=false). High AI-content-flag risk</small></td>
+        <td>count</td>
+        <td>All 4 signals present: author+LinkedIn, first-party data, original visual, 3+ outbound citations</td>
+        <td>25</td>
+        <td>human<br><small>Fix the 2-3 signals that are missing; each roughly maps to a separate edit</small></td>
+      </tr></tbody>
+  </table>
+  
+  <h2>Per-paragraph metrics</h2>
+  <p>49 paragraph(s) analyzed · <b>5</b> flagged with at least one issue.</p>
+  <table class="para-metrics">
+    <thead><tr>
+      <th>#</th><th>Opening</th><th>Words</th><th>Sents</th><th>Avg W/S</th>
+      <th>em—</th><th>Banned</th><th>Hedges</th><th>1p</th><th>?</th><th>Nums</th><th>Flags</th>
+    </tr></thead>
+    <tbody><tr>
+      <td>3</td>
+      <td><small>The AI search landscape has fundamentally shifted how…</small></td>
+      <td>44</td>
+      <td>2</td>
+      <td>22</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>—</td>
+      <td>?</td>
+      <td>0</td>
+      <td><span class="flags">banned-phrase(1)</span></td>
+    </tr><tr>
+      <td>4</td>
+      <td><small>Unlike traditional search where you compete for rankings,…</small></td>
+      <td>33</td>
+      <td>2</td>
+      <td>16.5</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>—</td>
+      <td>—</td>
+      <td>0</td>
+      <td><span class="flags">em-dashes(2)</span></td>
+    </tr><tr>
+      <td>5</td>
+      <td><small>This comprehensive guide covers the exact strategies that…</small></td>
+      <td>39</td>
+      <td>2</td>
+      <td>19.5</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>—</td>
+      <td>—</td>
+      <td>3</td>
+      <td><span class="flags">banned-phrase(1)</span></td>
+    </tr><tr>
+      <td>24</td>
+      <td><small>Research query patterns that consistently generate brand recommendations…</small></td>
+      <td>55</td>
+      <td>2</td>
+      <td>27.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>✓</td>
+      <td>—</td>
+      <td>4</td>
+      <td><span class="flags">sentence-avg-too-long(27.5w)</span></td>
+    </tr><tr>
+      <td>45</td>
+      <td><small>AnswerMonk provides automated AI search visibility audits across…</small></td>
+      <td>40</td>
+      <td>1</td>
+      <td>40</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>—</td>
+      <td>—</td>
+      <td>0</td>
+      <td><span class="flags">sentence-avg-too-long(40w)</span></td>
+    </tr></tbody>
+  </table>
+  <h2>Iteration detail</h2>
+  
+      <section class="iter">
+        <h3>Iteration 0 — overall 49 (Δ +0)</h3>
+        <div class="scores">
+          technical: <b>0</b> ·
+          humanization: <b>79</b> ·
+          quality: <b>70</b> ·
+          findings: <b>17</b> ·
+          patches applied: <b>0</b> ·
+          cost: <b>$0.0000</b>
+        </div>
+        <table>
+          <thead><tr><th>Sev</th><th>Layer</th><th>Check</th><th>Evidence</th><th>Truth</th></tr></thead>
+          <tbody><tr>
+    <td><span class="pill" style="background:#e67e22">warn</span></td>
+    <td>technical</td>
+    <td><code>T_internal_links_sparse</code></td>
+    <td>Only 1 internal links</td>
+    <td>heuristic</td>
+  </tr><tr>
+    <td><span class="pill" style="background:#e67e22">warn</span></td>
+    <td>technical</td>
+    <td><code>D_Organization_missing_recommended</code></td>
+    <td>Organization missing recommended: description</td>
+    <td>static</td>
+  </tr><tr>
+    <td><span class="pill" style="background:#c0392b">fail</span></td>
+    <td>technical</td>
+    <td><code>D_WebPage_missing_required</code></td>
+    <td>WebPage missing required: name</td>
+    <td>hard</td>
+  </tr><tr>
+    <td><span class="pill" style="background:#e67e22">warn</span></td>
+    <td>technical</td>
+    <td><code>D_WebPage_missing_recommended</code></td>
+    <td>WebPage missing recommended: description, dateModified, isPartOf, primaryImageOfPage, inLanguage</td>
+    <td>static</td>
+  </tr><tr>
+    <td><span class="pill" style="background:#e67e22">warn</span></td>
+    <td>technical</td>
+    <td><code>D_HowTo_missing_recommended</code></td>
+    <td>HowTo missing recommended: image, supply, tool</td>
+    <td>static</td>
+  </tr><tr>
+    <td><span class="pill" style="background:#c0392b">fail</span></td>
+    <td>technical</td>
+    <td><code>P_faq_count_mismatch</code></td>
+    <td>FAQPage schema has 6 Questions but page shows ~17 FAQ pairs</td>
+    <td>measured</td>
+  </tr><tr>
+    <td><span class="pill" style="background:#c0392b">fail</span></td>
+    <td>technical</td>
+    <td><code>S_tldr_missing</code></td>
+    <td>No TL;DR block (expected &lt;p data-tldr&gt; or paragraph starting with 'TL;DR:')</td>
+    <td>hard</td>
+  </tr><tr>
+    <td><span class="pill" style="background:#e67e22">warn</span></td>
+    <td>technical</td>
+    <td><code>S_visible_last_updated_missing</code></td>
+    <td>No visible 'Last updated' date on page (schema dateModified alone isn't enough for users or AI)</td>
+    <td>hard</td>
+  </tr><tr>
+    <td><span class="pill" style="background:#e67e22">warn</span></td>
+    <td>technical</td>
+    <td><code>S_word_count_above_band</code></td>
+    <td>1953 words exceeds procedural maximum 1500 (target 1200) — readers drop</td>
+    <td>static</td>
+  </tr><tr>
+    <td><span class="pill" style="background:#7b1414">critical</span></td>
+    <td>eeat</td>
+    <td><code>E_author_sameas_missing</code></td>
+    <td>Author has no sameAs URLs (should link LinkedIn + at least one other profile)</td>
+    <td>hard</td>
+  </tr><tr>
+    <td><span class="pill" style="background:#e67e22">warn</span></td>
+    <td>eeat</td>
+    <td><code>E_author_credentials_missing</code></td>
+    <td>Author has no jobTitle or description — credentials not stated</td>
+    <td>static</td>
+  </tr><tr>
+    <td><span class="pill" style="background:#c0392b">fail</span></td>
+    <td>eeat</td>
+    <td><code>E_visible_byline_missing</code></td>
+    <td>No visible author byline found in page HTML (rel=author, .author, .byline, or 'By Name Surname')</td>
+    <td>hard</td>
+  </tr><tr>
+    <td><span class="pill" style="background:#c0392b">fail</span></td>
+    <td>eeat</td>
+    <td><code>E_no_first_party_data</code></td>
+    <td>No first-party data signals (&quot;we tested&quot;, &quot;our data shows&quot;, &quot;we analyzed&quot;). Add at least one concrete observation</td>
+    <td>measured</td>
+  </tr><tr>
+    <td><span class="pill" style="background:#c0392b">fail</span></td>
+    <td>eeat</td>
+    <td><code>E_insufficient_outbound_citations</code></td>
+    <td>Fewer than 3 outbound citations to external sources — weakens trust + reciprocity</td>
+    <td>measured</td>
+  </tr><tr>
+    <td><span class="pill" style="background:#7b1414">critical</span></td>
+    <td>eeat</td>
+    <td><code>E_human_signals_bundle_incomplete</code></td>
+    <td>Only 2/4 human signals present (author+LinkedIn=false, first-party data=false, original visual=true, 3+ citations=false). High AI-content-flag risk</td>
+    <td>heuristic</td>
+  </tr><tr>
+    <td><span class="pill" style="background:#e67e22">warn</span></td>
+    <td>humanization</td>
+    <td><code>H_tricolon_density</code></td>
+    <td>8 tricolons (2.07/500 words; target ≤2)</td>
+    <td>measured</td>
+  </tr><tr>
+    <td><span class="pill" style="background:#c0392b">fail</span></td>
+    <td>humanization</td>
+    <td><code>H_banned_phrases</code></td>
+    <td>AI-signature phrases present (2): this comprehensive guide&quot;, &quot;fundamentally shifted</td>
+    <td>hard</td>
+  </tr></tbody>
+        </table>
+      </section>
+  <h2>Summary</h2>
+  <div class="summary">
+    <b>Status:</b> escalated ·
+    <b>Final score:</b> 49 ·
+    <b>Criticals:</b> 2 ·
+    <b>Iterations:</b> 1 ·
+    <b>Total cost:</b> $0.0000<br>
+    <b>Stop reason:</b> 2 critical finding(s) have no auto-fix (E_author_sameas_missing, E_human_signals_bundle_incomplete) — human edit required<br>
+    <b>Final HTML:</b> <code>/var/folders/5t/qvzw150x5032k3g8znq3dnnh0000gn/T/blog-buster-aSG8Dm/final/full-page.html</code>
+  </div>
+</body></html>

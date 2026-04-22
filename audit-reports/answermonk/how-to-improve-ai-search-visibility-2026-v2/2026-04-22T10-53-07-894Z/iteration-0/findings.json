@@ -1,0 +1,163 @@
+[
+  {
+    "checkId": "T_internal_links_sparse",
+    "layer": "technical",
+    "severity": "warn",
+    "evidence": "Only 1 internal links",
+    "sieveRules": [],
+    "sieveAps": [],
+    "truthBadge": "heuristic"
+  },
+  {
+    "checkId": "D_Organization_missing_recommended",
+    "layer": "technical",
+    "severity": "warn",
+    "evidence": "Organization missing recommended: description",
+    "sieveRules": [],
+    "sieveAps": [],
+    "truthBadge": "static"
+  },
+  {
+    "checkId": "D_WebPage_missing_required",
+    "layer": "technical",
+    "severity": "fail",
+    "evidence": "WebPage missing required: name",
+    "sieveRules": [
+      1710,
+      1695,
+      1668,
+      1600,
+      1674,
+      1654,
+      1532
+    ],
+    "sieveAps": [],
+    "truthBadge": "hard"
+  },
+  {
+    "checkId": "D_WebPage_missing_recommended",
+    "layer": "technical",
+    "severity": "warn",
+    "evidence": "WebPage missing recommended: description, dateModified, isPartOf, primaryImageOfPage, inLanguage",
+    "sieveRules": [],
+    "sieveAps": [],
+    "truthBadge": "static"
+  },
+  {
+    "checkId": "D_HowTo_missing_recommended",
+    "layer": "technical",
+    "severity": "warn",
+    "evidence": "HowTo missing recommended: image, supply, tool",
+    "sieveRules": [],
+    "sieveAps": [],
+    "truthBadge": "static"
+  },
+  {
+    "checkId": "P_faq_count_mismatch",
+    "layer": "technical",
+    "severity": "fail",
+    "evidence": "FAQPage schema has 6 Questions but page shows ~17 FAQ pairs",
+    "sieveRules": [],
+    "sieveAps": [],
+    "truthBadge": "measured"
+  },
+  {
+    "checkId": "S_tldr_missing",
+    "layer": "technical",
+    "severity": "fail",
+    "evidence": "No TL;DR block (expected <p data-tldr> or paragraph starting with 'TL;DR:')",
+    "sieveRules": [],
+    "sieveAps": [],
+    "truthBadge": "hard"
+  },
+  {
+    "checkId": "S_visible_last_updated_missing",
+    "layer": "technical",
+    "severity": "warn",
+    "evidence": "No visible 'Last updated' date on page (schema dateModified alone isn't enough for users or AI)",
+    "sieveRules": [],
+    "sieveAps": [],
+    "truthBadge": "hard"
+  },
+  {
+    "checkId": "S_word_count_above_band",
+    "layer": "technical",
+    "severity": "warn",
+    "evidence": "1953 words exceeds procedural maximum 1500 (target 1200) — readers drop",
+    "sieveRules": [],
+    "sieveAps": [],
+    "truthBadge": "static"
+  },
+  {
+    "checkId": "E_author_sameas_missing",
+    "layer": "eeat",
+    "severity": "critical",
+    "evidence": "Author has no sameAs URLs (should link LinkedIn + at least one other profile)",
+    "sieveRules": [],
+    "sieveAps": [],
+    "truthBadge": "hard"
+  },
+  {
+    "checkId": "E_author_credentials_missing",
+    "layer": "eeat",
+    "severity": "warn",
+    "evidence": "Author has no jobTitle or description — credentials not stated",
+    "sieveRules": [],
+    "sieveAps": [],
+    "truthBadge": "static"
+  },
+  {
+    "checkId": "E_visible_byline_missing",
+    "layer": "eeat",
+    "severity": "fail",
+    "evidence": "No visible author byline found in page HTML (rel=author, .author, .byline, or 'By Name Surname')",
+    "sieveRules": [],
+    "sieveAps": [],
+    "truthBadge": "hard"
+  },
+  {
+    "checkId": "E_no_first_party_data",
+    "layer": "eeat",
+    "severity": "fail",
+    "evidence": "No first-party data signals (\"we tested\", \"our data shows\", \"we analyzed\"). Add at least one concrete observation",
+    "sieveRules": [],
+    "sieveAps": [],
+    "truthBadge": "measured"
+  },
+  {
+    "checkId": "E_insufficient_outbound_citations",
+    "layer": "eeat",
+    "severity": "fail",
+    "evidence": "Fewer than 3 outbound citations to external sources — weakens trust + reciprocity",
+    "sieveRules": [],
+    "sieveAps": [],
+    "truthBadge": "measured"
+  },
+  {
+    "checkId": "E_human_signals_bundle_incomplete",
+    "layer": "eeat",
+    "severity": "critical",
+    "evidence": "Only 2/4 human signals present (author+LinkedIn=false, first-party data=false, original visual=true, 3+ citations=false). High AI-content-flag risk",
+    "sieveRules": [],
+    "sieveAps": [],
+    "truthBadge": "heuristic"
+  },
+  {
+    "checkId": "H_tricolon_density",
+    "layer": "humanization",
+    "severity": "warn",
+    "evidence": "8 tricolons (2.07/500 words; target ≤2)",
+    "sieveRules": [],
+    "sieveAps": [],
+    "truthBadge": "measured"
+  },
+  {
+    "checkId": "H_banned_phrases",
+    "layer": "humanization",
+    "severity": "fail",
+    "evidence": "AI-signature phrases present (2): this comprehensive guide\", \"fundamentally shifted",
+    "sieveRules": [],
+    "sieveAps": [],
+    "truthBadge": "hard"
+  }
+]

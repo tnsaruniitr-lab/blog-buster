@@ -1,0 +1,212 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>FINAL Audit — how-to-improve-ai-search-visibility-2026-v2</title>
+<style>
+  body{font:14px/1.55 -apple-system,BlinkMacSystemFont,sans-serif;margin:2rem;color:#222;max-width:1150px}
+  h1{margin-bottom:.2rem}
+  h2{margin-top:2rem;border-bottom:1px solid #ddd;padding-bottom:.3rem}
+  .meta{color:#666;margin-bottom:1.5rem}
+  section.for-humans,section.for-shakespeer{border:2px solid;border-radius:8px;padding:1rem 1.2rem;margin-bottom:1rem}
+  section.for-humans{border-color:#2980b9;background:#f5f9fc}
+  section.for-shakespeer{border-color:#8e44ad;background:#f9f4fb}
+  .audience-tag{font-size:11px;letter-spacing:1.2px;font-weight:700;color:#555;margin-bottom:.5rem}
+  .audience-tag.shakespeer{color:#6c3483}
+  .verdict{display:inline-block;padding:8px 18px;border-radius:6px;font-weight:700;font-size:18px;letter-spacing:.5px;margin-bottom:.5rem}
+  .tldr{color:#444;font-size:13px;margin:.4rem 0}
+  ul.actions{margin:0;padding-left:1.2rem}
+  ul.actions li{margin:.3rem 0}
+  pre.shakespeer-payload{background:#fff;border:1px solid #d7c3dc;padding:10px;font-size:11.5px;overflow-x:auto;max-height:500px}
+  .summary{background:#f7f7f9;padding:1rem;border-radius:6px;margin-bottom:1rem}
+  .scores{color:#555;margin:.4rem 0 .8rem;font-size:13px}
+  section.iter{border:1px solid #e4e4e4;border-radius:6px;padding:1rem;margin-bottom:1.2rem}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:.5rem}
+  table.para-metrics{font-size:11.5px}
+  table.para-metrics th,table.para-metrics td{padding:3px 6px}
+  th,td{text-align:left;padding:6px 8px;border-bottom:1px solid #eee;vertical-align:top}
+  th{background:#fafafa}
+  code{background:#f1f1f1;padding:1px 5px;border-radius:3px;font-size:12px}
+  .pill{color:white;padding:2px 8px;border-radius:10px;font-size:10.5px;font-weight:600;text-transform:uppercase}
+  .flags{color:#b55;font-size:11px}
+  pre{background:#f7f7f7;padding:8px;border-radius:4px;font-size:11px;overflow-x:auto}
+  details{margin-top:4px}
+  summary{cursor:pointer;color:#2980b9;font-size:12px}
+</style></head><body>
+  <h1>how-to-improve-ai-search-visibility-2026-v2 <span style="color:#888;font-size:16px">[v3 · FINAL]</span></h1>
+  <div class="meta">brand: AnswerMonk · type: <code>procedural</code> · 2026-04-22T10:53:10.042Z</div>
+  <section class="for-humans">
+    <div class="audience-tag">FOR HUMANS — consolidated final report</div>
+    <div class="verdict" style="background:#7b1414;color:#fff">BLOCK</div>
+    <p><b>Final score:</b> 49/100 · <b>Criticals remaining:</b> 2</p>
+    <p><b>Reason:</b> 2 critical finding(s) — cannot ship: E_author_sameas_missing, E_human_signals_bundle_incomplete</p>
+    <h3>Remaining issues (top 6)</h3>
+    <ul class="actions"><li><span class="pill" style="background:#7b1414">critical</span> <b>E_author_sameas_missing</b> — Author has no sameAs URLs (should link LinkedIn + at least one other profile)</li><li><span class="pill" style="background:#7b1414">critical</span> <b>E_human_signals_bundle_incomplete</b> — Only 2/4 human signals present (author+LinkedIn=false, first-party data=false, original visual=true, 3+ citations=false). High AI-content-flag risk</li><li><span class="pill" style="background:#c0392b">fail</span> <b>D_WebPage_missing_required</b> — WebPage missing required: name</li><li><span class="pill" style="background:#c0392b">fail</span> <b>P_faq_count_mismatch</b> — FAQPage schema has 6 Questions but page shows ~17 FAQ pairs</li><li><span class="pill" style="background:#c0392b">fail</span> <b>S_tldr_missing</b> — No TL;DR block (expected &lt;p data-tldr&gt; or paragraph starting with 'TL;DR:')</li><li><span class="pill" style="background:#c0392b">fail</span> <b>E_visible_byline_missing</b> — No visible author byline found in page HTML (rel=author, .author, .byline, or 'By Name Surname')</li></ul>
+  </section>
+  <h2>Version history</h2>
+  <table><thead><tr><th>Version</th><th>Timestamp</th></tr></thead><tbody><tr><td>v1</td><td><code>2026-04-22T10-53-06-161Z</code></td></tr><tr><td>v2</td><td><code>2026-04-22T10-53-07-894Z</code></td></tr><tr><td>v3 (this)</td><td><code>2026-04-22T10:53:09.828Z</code></td></tr></tbody></table>
+  
+  <h2>v2 → v3 — prior-issue diff</h2>
+  <p>Fixed: <b>0</b> · Still present: <b>17</b> · Regressed: <b>0</b></p>
+  <table>
+    <thead><tr><th>Check</th><th>Prev severity</th><th>Status</th><th>Current evidence</th></tr></thead>
+    <tbody><tr>
+        <td><code>T_internal_links_sparse</code></td>
+        <td><span class="pill" style="background:#e67e22">warn</span></td>
+        <td>❌ still present</td>
+        <td>Only 1 internal links</td>
+      </tr><tr>
+        <td><code>D_Organization_missing_recommended</code></td>
+        <td><span class="pill" style="background:#e67e22">warn</span></td>
+        <td>❌ still present</td>
+        <td>Organization missing recommended: description</td>
+      </tr><tr>
+        <td><code>D_WebPage_missing_required</code></td>
+        <td><span class="pill" style="background:#c0392b">fail</span></td>
+        <td>❌ still present</td>
+        <td>WebPage missing required: name</td>
+      </tr><tr>
+        <td><code>D_WebPage_missing_recommended</code></td>
+        <td><span class="pill" style="background:#e67e22">warn</span></td>
+        <td>❌ still present</td>
+        <td>WebPage missing recommended: description, dateModified, isPartOf, primaryImageOfPage, inLanguage</td>
+      </tr><tr>
+        <td><code>D_HowTo_missing_recommended</code></td>
+        <td><span class="pill" style="background:#e67e22">warn</span></td>
+        <td>❌ still present</td>
+        <td>HowTo missing recommended: image, supply, tool</td>
+      </tr><tr>
+        <td><code>P_faq_count_mismatch</code></td>
+        <td><span class="pill" style="background:#c0392b">fail</span></td>
+        <td>❌ still present</td>
+        <td>FAQPage schema has 6 Questions but page shows ~17 FAQ pairs</td>
+      </tr><tr>
+        <td><code>S_tldr_missing</code></td>
+        <td><span class="pill" style="background:#c0392b">fail</span></td>
+        <td>❌ still present</td>
+        <td>No TL;DR block (expected &lt;p data-tldr&gt; or paragraph starting with 'TL;DR:')</td>
+      </tr><tr>
+        <td><code>S_visible_last_updated_missing</code></td>
+        <td><span class="pill" style="background:#e67e22">warn</span></td>
+        <td>❌ still present</td>
+        <td>No visible 'Last updated' date on page (schema dateModified alone isn't enough for users or AI)</td>
+      </tr><tr>
+        <td><code>S_word_count_above_band</code></td>
+        <td><span class="pill" style="background:#e67e22">warn</span></td>
+        <td>❌ still present</td>
+        <td>1953 words exceeds procedural maximum 1500 (target 1200) — readers drop</td>
+      </tr><tr>
+        <td><code>E_author_sameas_missing</code></td>
+        <td><span class="pill" style="background:#7b1414">critical</span></td>
+        <td>❌ still present</td>
+        <td>Author has no sameAs URLs (should link LinkedIn + at least one other profile)</td>
+      </tr><tr>
+        <td><code>E_author_credentials_missing</code></td>
+        <td><span class="pill" style="background:#e67e22">warn</span></td>
+        <td>❌ still present</td>
+        <td>Author has no jobTitle or description — credentials not stated</td>
+      </tr><tr>
+        <td><code>E_visible_byline_missing</code></td>
+        <td><span class="pill" style="background:#c0392b">fail</span></td>
+        <td>❌ still present</td>
+        <td>No visible author byline found in page HTML (rel=author, .author, .byline, or 'By Name Surname')</td>
+      </tr><tr>
+        <td><code>E_no_first_party_data</code></td>
+        <td><span class="pill" style="background:#c0392b">fail</span></td>
+        <td>❌ still present</td>
+        <td>No first-party data signals (&quot;we tested&quot;, &quot;our data shows&quot;, &quot;we analyzed&quot;). Add at least one concrete observation</td>
+      </tr><tr>
+        <td><code>E_insufficient_outbound_citations</code></td>
+        <td><span class="pill" style="background:#c0392b">fail</span></td>
+        <td>❌ still present</td>
+        <td>Fewer than 3 outbound citations to external sources — weakens trust + reciprocity</td>
+      </tr><tr>
+        <td><code>E_human_signals_bundle_incomplete</code></td>
+        <td><span class="pill" style="background:#7b1414">critical</span></td>
+        <td>❌ still present</td>
+        <td>Only 2/4 human signals present (author+LinkedIn=false, first-party data=false, original visual=true, 3+ citations=false). High AI-content-flag risk</td>
+      </tr><tr>
+        <td><code>H_tricolon_density</code></td>
+        <td><span class="pill" style="background:#e67e22">warn</span></td>
+        <td>❌ still present</td>
+        <td>8 tricolons (2.07/500 words; target ≤2)</td>
+      </tr><tr>
+        <td><code>H_banned_phrases</code></td>
+        <td><span class="pill" style="background:#c0392b">fail</span></td>
+        <td>❌ still present</td>
+        <td>AI-signature phrases present (2): this comprehensive guide&quot;, &quot;fundamentally shifted</td>
+      </tr></tbody>
+  </table>
+  
+  <h2>Per-paragraph metrics</h2>
+  <p>49 paragraph(s) analyzed · <b>5</b> flagged with at least one issue.</p>
+  <table class="para-metrics">
+    <thead><tr>
+      <th>#</th><th>Opening</th><th>Words</th><th>Sents</th><th>Avg W/S</th>
+      <th>em—</th><th>Banned</th><th>Hedges</th><th>1p</th><th>?</th><th>Nums</th><th>Flags</th>
+    </tr></thead>
+    <tbody><tr>
+      <td>3</td>
+      <td><small>The AI search landscape has fundamentally shifted how…</small></td>
+      <td>44</td>
+      <td>2</td>
+      <td>22</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>—</td>
+      <td>?</td>
+      <td>0</td>
+      <td><span class="flags">banned-phrase(1)</span></td>
+    </tr><tr>
+      <td>4</td>
+      <td><small>Unlike traditional search where you compete for rankings,…</small></td>
+      <td>33</td>
+      <td>2</td>
+      <td>16.5</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>—</td>
+      <td>—</td>
+      <td>0</td>
+      <td><span class="flags">em-dashes(2)</span></td>
+    </tr><tr>
+      <td>5</td>
+      <td><small>This comprehensive guide covers the exact strategies that…</small></td>
+      <td>39</td>
+      <td>2</td>
+      <td>19.5</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>—</td>
+      <td>—</td>
+      <td>3</td>
+      <td><span class="flags">banned-phrase(1)</span></td>
+    </tr><tr>
+      <td>24</td>
+      <td><small>Research query patterns that consistently generate brand recommendations…</small></td>
+      <td>55</td>
+      <td>2</td>
+      <td>27.5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>✓</td>
+      <td>—</td>
+      <td>4</td>
+      <td><span class="flags">sentence-avg-too-long(27.5w)</span></td>
+    </tr><tr>
+      <td>45</td>
+      <td><small>AnswerMonk provides automated AI search visibility audits across…</small></td>
+      <td>40</td>
+      <td>1</td>
+      <td>40</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>—</td>
+      <td>—</td>
+      <td>0</td>
+      <td><span class="flags">sentence-avg-too-long(40w)</span></td>
+    </tr></tbody>
+  </table>
+</body></html>
