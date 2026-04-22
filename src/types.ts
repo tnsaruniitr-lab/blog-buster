@@ -1,4 +1,23 @@
-export type Layer = "technical" | "humanization" | "quality" | "eeat";
+export type Layer = "technical" | "humanization" | "quality" | "eeat" | "preflight";
+
+export interface PreflightFinding {
+  check_id: string;
+  severity: "critical" | "fail" | "warn" | "info";
+  evidence: string;
+  suggested_fix?: string;
+  authority: "shakespeer" | "blog-buster" | "shared";
+}
+
+export interface RejectedPreflightFinding {
+  check_id: string;
+  reason: string;
+}
+
+export interface ScoreWeights {
+  technical: number;
+  humanization: number;
+  quality: number;
+}
 
 export type Severity = "critical" | "fail" | "warn" | "info";
 
@@ -119,6 +138,10 @@ export interface AuditReport {
   unresolvedPriorIssueCount: number;
   regressedPriorIssueCount: number;
   paragraphMetrics: ParagraphMetric[];
+  confirmedFindings: string[];
+  rejectedFindings: RejectedPreflightFinding[];
+  blogBusterVersion: string;
+  scoreWeights: ScoreWeights;
   startedAt: string;
   completedAt: string;
   status: "shipped" | "escalated" | "stalled" | "budget_exceeded" | "error";

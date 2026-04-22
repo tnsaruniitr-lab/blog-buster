@@ -3,7 +3,7 @@ import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
 import { existsSync } from "node:fs";
-import { auditLoop } from "./engine/loop.js";
+import { auditLoop, BLOG_BUSTER_VERSION } from "./engine/loop.js";
 import { loadFromDirectory } from "./input/from-directory.js";
 import { loadFromPostObject, type BloggerPost } from "./input/from-post-object.js";
 import {
@@ -13,28 +13,48 @@ import {
   type PublishResult,
 } from "./output/publisher.js";
 import { writeReport } from "./output/disk-writer.js";
-import { loadHistory } from "./output/history.js";
+import { loadHistory, type PriorRun } from "./output/history.js";
 import { buildShakespeerInstructions } from "./output/shakespeer-instructions.js";
 import type {
   AuditInput,
   AuditReport,
   ParagraphMetric,
+  PreflightFinding,
   PriorIssueStatus,
+  RejectedPreflightFinding,
+  ScoreWeights,
   Verdict,
 } from "./types.js";
 import type { ShakespeerInstructionsPayload } from "./output/shakespeer-instructions.js";
 
+export const VERSION = BLOG_BUSTER_VERSION;
+
 export interface AuditOptions {
+  // input (exactly one required)
   sourceDir?: string;
   generatedPost?: BloggerPost;
+
+  // execution
   runLlmLayers?: boolean;
+  targetScore?: number;
+  scoreWeights?: ScoreWeights;
+
+  // lineage — pass these from your DB to skip the on-disk history scan
+  priorRuns?: PriorRun[];
+  version?: number;
+
+  // two-witness preflight from shakes-peer's kept checks
+  preflight?: PreflightFinding[];
+
+  // publishing
   publishToLocal?: boolean;
   publishToRepo?: boolean;
   commit?: boolean;
+
+  // paths
   outputDir?: string;
   repoRoot?: string;
   localRoot?: string;
-  targetScore?: number;
 }
 
 export interface AuditHumanSummary {
@@ -60,6 +80,10 @@ export interface AuditResult {
   paragraphMetrics: ParagraphMetric[];
   priorIssues: PriorIssueStatus[];
   regressions: PriorIssueStatus[];
+  confirmedFindings: string[];
+  rejectedFindings: RejectedPreflightFinding[];
+  blogBusterVersion: string;
+  scoreWeights: ScoreWeights;
   publishedLocations: PublishResult["locations"];
   fullReport: AuditReport;
 }
@@ -104,7 +128,13 @@ export async function audit(opts: AuditOptions): Promise<AuditResult> {
   const repoAuditRoot = join(repoRoot, "audit-reports");
   const localAuditRoot = opts.localRoot ?? defaultLocalRoot();
 
-  const priorRuns = loadHistory(repoAuditRoot, input.brand, input.slug);
+  // Lineage: prefer caller-provided priorRuns (Supabase-backed) over the
+  // on-disk scan. When both sides are fully integrated, priorRuns comes from
+  // audit_lineage and the disk scan is never invoked.
+  const priorRuns =
+    opts.priorRuns !== undefined
+      ? opts.priorRuns
+      : loadHistory(repoAuditRoot, input.brand, input.slug);
 
   const usingExplicitOut = !!opts.outputDir;
   const stagingDir = opts.outputDir
@@ -116,6 +146,9 @@ export async function audit(opts: AuditOptions): Promise<AuditResult> {
     outputDir: stagingDir,
     runLlmLayers,
     priorRuns,
+    versionOverride: opts.version,
+    preflight: opts.preflight,
+    scoreWeights: opts.scoreWeights,
   });
 
   writeReport(report, stagingDir);
@@ -159,17 +192,25 @@ export async function audit(opts: AuditOptions): Promise<AuditResult> {
     paragraphMetrics: report.paragraphMetrics,
     priorIssues: report.priorIssues,
     regressions: report.priorIssues.filter((p) => p.status === "regressed"),
+    confirmedFindings: report.confirmedFindings,
+    rejectedFindings: report.rejectedFindings,
+    blogBusterVersion: report.blogBusterVersion,
+    scoreWeights: report.scoreWeights,
     publishedLocations: publishResult.locations,
     fullReport: report,
   };
 }
 
 export type { BloggerPost } from "./input/from-post-object.js";
+export type { PriorRun } from "./output/history.js";
 export type {
   AuditReport,
   AuditInput,
   ParagraphMetric,
+  PreflightFinding,
   PriorIssueStatus,
+  RejectedPreflightFinding,
+  ScoreWeights,
   Verdict,
 } from "./types.js";
 export type {

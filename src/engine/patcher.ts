@@ -22,6 +22,23 @@ function isHtmlValid(html: string): boolean {
   }
 }
 
+// Handshake contract §7.1: a span-scoped patch whose `before` string appears
+// more than once is ambiguous — `String.replace` would hit only the first
+// occurrence, which may not be the one the auditor flagged. Reject those
+// patches at the source so every downstream consumer benefits from the guard.
+function countOccurrences(haystack: string, needle: string): number {
+  if (!needle) return 0;
+  let count = 0;
+  let i = 0;
+  while (true) {
+    const at = haystack.indexOf(needle, i);
+    if (at < 0) break;
+    count++;
+    i = at + needle.length;
+  }
+  return count;
+}
+
 export async function applyPatches(
   input: AuditInput,
   planned: PlannedPatch[],
@@ -38,8 +55,16 @@ export async function applyPatches(
         rejected.push({ patch, reason: "empty before/after" });
         continue;
       }
-      if (!html.includes(patch.before)) {
+      const occurrences = countOccurrences(html, patch.before);
+      if (occurrences === 0) {
         rejected.push({ patch, reason: "target span not found in HTML" });
+        continue;
+      }
+      if (occurrences > 1) {
+        rejected.push({
+          patch,
+          reason: `ambiguous: 'before' span appears ${occurrences}× in HTML — cannot determine which occurrence to replace`,
+        });
         continue;
       }
       const nextHtml = html.replace(patch.before, patch.after);

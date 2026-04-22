@@ -7,42 +7,77 @@ import type {
   AuditReport,
   Finding,
   LayerScores,
+  PreflightFinding,
+  RejectedPreflightFinding,
+  ScoreWeights,
 } from "../types.js";
 import { runTechnicalLayer } from "../layers/technical/index.js";
 import { runEeatLayer } from "../layers/eeat/index.js";
 import { runHumanizationLayer } from "../layers/humanization/index.js";
 import { runQualityLayer } from "../layers/quality/index.js";
-import { composeScores, countCritical, deriveVerdict, scoreTechnical } from "./scorer.js";
+import {
+  composeScores,
+  countCritical,
+  deriveVerdict,
+  scoreTechnical,
+} from "./scorer.js";
 import { planPatches } from "./rewriter.js";
 import { applyPatches } from "./patcher.js";
 import { computeParagraphMetrics } from "../layers/paragraph-metrics.js";
 import type { PriorRun } from "../output/history.js";
 import { diffAgainstPrior, priorFindingsFor } from "../output/history.js";
+import { reconcilePreflight } from "../output/preflight.js";
+
+export const BLOG_BUSTER_VERSION = "0.1.1";
 
 export interface LoopOptions {
   outputDir: string;
   runLlmLayers: boolean;
   priorRuns: PriorRun[];
+  versionOverride?: number;
+  preflight?: PreflightFinding[];
+  scoreWeights?: ScoreWeights;
+}
+
+interface LayerResult {
+  findings: Finding[];
+  scores: LayerScores;
+  cost: number;
+  confirmed: string[];
+  rejected: RejectedPreflightFinding[];
 }
 
 async function runAllLayers(
   input: AuditInput,
   runLlm: boolean,
-): Promise<{ findings: Finding[]; scores: LayerScores; cost: number }> {
+  preflight: PreflightFinding[],
+  weights: ScoreWeights | undefined,
+): Promise<LayerResult> {
   const technicalFindings = runTechnicalLayer(input);
   const eeatFindings = runEeatLayer(input);
   const human = await runHumanizationLayer(input, { runJudge: runLlm });
   const quality = await runQualityLayer(input, { runJudge: runLlm });
   const technicalAndEeat = [...technicalFindings, ...eeatFindings];
+  const ourFindings = [...technicalAndEeat, ...human.findings, ...quality.findings];
+
+  const { preflightAsFindings, confirmed, rejected } = reconcilePreflight(
+    preflight,
+    ourFindings,
+  );
+
   const scores = composeScores(
     scoreTechnical(technicalAndEeat),
     human.score,
     quality.score,
+    weights,
   );
+
   return {
-    findings: [...technicalAndEeat, ...human.findings, ...quality.findings],
+    findings: [...ourFindings, ...preflightAsFindings],
     scores,
     cost: human.cost + quality.cost,
+    confirmed,
+    rejected,
   };
 }
 
@@ -77,12 +112,24 @@ export async function auditLoop(
   let stopReason = "";
   let status: AuditReport["status"] = "shipped";
 
+  let lastConfirmed: string[] = [];
+  let lastRejected: RejectedPreflightFinding[] = [];
+  const preflight = opts.preflight ?? [];
+  const weights = opts.scoreWeights;
+
   mkdirSync(opts.outputDir, { recursive: true });
 
   for (let i = 0; i <= config.maxIterations; i++) {
     const iterStart = Date.now();
-    const { findings, scores, cost } = await runAllLayers(current, opts.runLlmLayers);
+    const { findings, scores, cost, confirmed, rejected } = await runAllLayers(
+      current,
+      opts.runLlmLayers,
+      preflight,
+      weights,
+    );
     totalCost += cost;
+    lastConfirmed = confirmed;
+    lastRejected = rejected;
 
     const iterDir = join(opts.outputDir, `iteration-${i}`);
     const iter: AuditIteration = {
@@ -196,9 +243,21 @@ export async function auditLoop(
   const unresolvedPriorIssueCount = priorIssues.filter((p) => p.status === "still_present").length;
   const regressedPriorIssueCount = priorIssues.filter((p) => p.status === "regressed").length;
 
-  const version = opts.priorRuns.length + 1;
+  const version = opts.versionOverride ?? opts.priorRuns.length + 1;
   const isFinal = version >= 3;
   const previousVersions = opts.priorRuns.map((r) => r.timestamp);
+
+  const effectiveWeights: ScoreWeights = weights
+    ? {
+        technical: weights.technical,
+        humanization: weights.humanization,
+        quality: weights.quality,
+      }
+    : {
+        technical: config.weights.technical,
+        humanization: config.weights.humanization,
+        quality: config.weights.quality,
+      };
 
   return {
     slug: initialInput.slug,
@@ -212,6 +271,10 @@ export async function auditLoop(
     unresolvedPriorIssueCount,
     regressedPriorIssueCount,
     paragraphMetrics,
+    confirmedFindings: lastConfirmed,
+    rejectedFindings: lastRejected,
+    blogBusterVersion: BLOG_BUSTER_VERSION,
+    scoreWeights: effectiveWeights,
     startedAt,
     completedAt: new Date().toISOString(),
     status,

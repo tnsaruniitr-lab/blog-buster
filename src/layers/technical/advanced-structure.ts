@@ -241,17 +241,26 @@ export function auditH2Extractability(input: AuditInput): Finding[] {
 export function auditVisibleLastUpdated(input: AuditInput): Finding[] {
   const findings: Finding[] = [];
   const text = visibleText(input.html).toLowerCase();
-  const hasMarker =
-    /last updated[:\s]|updated:\s|updated on\s|last revised/.test(text) ||
+  // Handshake §3.3: also catch "Next review" / "Review by" stamps so this
+  // check covers shakespeer's F7 (Last Reviewed + Next Review) in full.
+  const hasLastUpdated =
+    /last updated[:\s]|updated:\s|updated on\s|last revised/.test(text);
+  const hasReviewStamp =
+    /last reviewed[:\s]|reviewed on\s|next review[:\s]|review by\s|review date[:\s]/.test(
+      text,
+    );
+  const hasWrittenDate =
     /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{1,2},?\s+20\d{2}/i.test(
       visibleText(input.html),
     );
+  const hasMarker = hasLastUpdated || hasReviewStamp || hasWrittenDate;
   if (!hasMarker) {
     findings.push({
       checkId: "S_visible_last_updated_missing",
       layer: "technical",
       severity: "warn",
-      evidence: "No visible 'Last updated' date on page (schema dateModified alone isn't enough for users or AI)",
+      evidence:
+        "No visible 'Last updated' / 'Last reviewed' / 'Next review' stamp on page (schema dateModified alone isn't enough for users or AI)",
       sieveRules: [],
       sieveAps: [],
       truthBadge: "hard",

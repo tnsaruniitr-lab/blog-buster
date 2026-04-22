@@ -1,4 +1,4 @@
-import type { Finding, LayerScores, Verdict } from "../types.js";
+import type { Finding, LayerScores, ScoreWeights, Verdict } from "../types.js";
 import { config } from "../config.js";
 
 const SEVERITY_PENALTY = {
@@ -21,12 +21,25 @@ export function scoreTechnical(findings: Finding[]): number {
   return scoreLayer(findings, ["technical", "eeat"]);
 }
 
+export function normalizeWeights(w: ScoreWeights): ScoreWeights {
+  const sum = w.technical + w.humanization + w.quality;
+  if (sum <= 0) return { technical: 0.35, humanization: 0.4, quality: 0.25 };
+  return {
+    technical: w.technical / sum,
+    humanization: w.humanization / sum,
+    quality: w.quality / sum,
+  };
+}
+
 export function composeScores(
   technical: number,
   humanization: number,
   quality: number,
+  weightsOverride?: ScoreWeights,
 ): LayerScores {
-  const w = config.weights;
+  const w = weightsOverride
+    ? normalizeWeights(weightsOverride)
+    : config.weights;
   const overall = Math.round(
     technical * w.technical + humanization * w.humanization + quality * w.quality,
   );

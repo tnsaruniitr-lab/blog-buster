@@ -1,6 +1,6 @@
 {
   "name": "blog-buster",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
@@ -23,11 +23,11 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp src/shared-lib/*.json dist/shared-lib/",
     "audit": "tsx src/cli.ts",
     "dev": "tsx watch src/cli.ts",
     "typecheck": "tsc --noEmit",
-    "prepare": "tsc"
+    "prepare": "npm run build"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",

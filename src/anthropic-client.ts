@@ -33,13 +33,22 @@ export async function callClaude(params: {
   maxTokens?: number;
   cacheSystem?: boolean;
 }): Promise<CallResult> {
-  const systemBlocks = params.cacheSystem
-    ? [{ type: "text" as const, text: params.system, cache_control: { type: "ephemeral" as const } }]
-    : [{ type: "text" as const, text: params.system }];
+  // Idempotence contract (handshake §10): every Claude call is pinned at
+  // temperature=0 and the system prompt is cache-keyed. This means the same
+  // (model, system, user) tuple produces the same output run-to-run, so
+  // cross-version diffs and regression detection are deterministic.
+  const systemBlocks = [
+    {
+      type: "text" as const,
+      text: params.system,
+      cache_control: { type: "ephemeral" as const },
+    },
+  ];
 
   const resp = await anthropic.messages.create({
     model: params.model,
     max_tokens: params.maxTokens ?? 2048,
+    temperature: 0,
     system: systemBlocks,
     messages: [{ role: "user", content: params.user }],
   });
