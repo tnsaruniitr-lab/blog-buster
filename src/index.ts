@@ -50,6 +50,7 @@ export interface AuditOptions {
   publishToLocal?: boolean;
   publishToRepo?: boolean;
   commit?: boolean;
+  push?: boolean;  // when true and commit is true, runs `git push` after commit
 
   // paths
   outputDir?: string;
@@ -167,7 +168,7 @@ export async function audit(opts: AuditOptions): Promise<AuditResult> {
   if (opts.commit && publishRepo) {
     const repoLoc = publishResult.locations.find((l) => l.kind === "repo");
     if (repoLoc) {
-      commitRepoCopy(repoAuditRoot, repoLoc.relPath, report);
+      commitRepoCopy(repoAuditRoot, repoLoc.relPath, report, { push: opts.push });
     }
   }
 

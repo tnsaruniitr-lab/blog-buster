@@ -9,6 +9,7 @@ interface Args {
   out?: string;
   noLlm: boolean;
   commit: boolean;
+  push: boolean;
   noLocal: boolean;
   noRepo: boolean;
 }
@@ -19,6 +20,7 @@ function parseArgs(argv: string[]): Args {
   let out: string | undefined;
   let noLlm = false;
   let commit = false;
+  let push = false;
   let noLocal = false;
   let noRepo = false;
   for (let i = 0; i < args.length; i++) {
@@ -26,7 +28,10 @@ function parseArgs(argv: string[]): Args {
     if (a === "--out" || a === "-o") out = args[++i];
     else if (a === "--no-llm") noLlm = true;
     else if (a === "--commit") commit = true;
-    else if (a === "--no-publish-local") noLocal = true;
+    else if (a === "--push") {
+      commit = true;
+      push = true;
+    } else if (a === "--no-publish-local") noLocal = true;
     else if (a === "--no-publish-repo") noRepo = true;
     else if (a === "--help" || a === "-h") {
       console.log(
@@ -38,6 +43,7 @@ Flags:
   --out <dir>               Override: write staging artifacts to this dir (disables dual-publish)
   --no-llm                  Skip LLM-based layers (deterministic only)
   --commit                  After publishing, git-add + git-commit the repo copy
+  --push                    Implies --commit; also runs git push (local commit lands + remote updates)
   --no-publish-local        Skip local publish to ~/Desktop/audits/reports
   --no-publish-repo         Skip repo publish to blog-buster/audit-reports
 
@@ -61,7 +67,7 @@ Programmatic use:
     console.error("Error: missing input directory. See --help.");
     process.exit(2);
   }
-  return { input, out, noLlm, commit, noLocal, noRepo };
+  return { input, out, noLlm, commit, push, noLocal, noRepo };
 }
 
 async function main(): Promise<void> {
@@ -86,6 +92,7 @@ async function main(): Promise<void> {
     publishToLocal: !parsed.noLocal && !parsed.out,
     publishToRepo: !parsed.noRepo && !parsed.out,
     commit: parsed.commit,
+    push: parsed.push,
     outputDir: parsed.out ? resolve(parsed.out) : undefined,
   });
 

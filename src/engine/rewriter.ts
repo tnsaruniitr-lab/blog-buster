@@ -3,7 +3,9 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { callClaude } from "../anthropic-client.js";
 import { config } from "../config.js";
-import type { Finding, Patch } from "../types.js";
+import type { AuditInput, Finding, Patch } from "../types.js";
+import { planMetaPatches } from "./planners/meta-planners.js";
+import { planSchemaPatches } from "./planners/schema-planners.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const SENTENCE_PROMPT = readFileSync(
@@ -27,7 +29,31 @@ export interface PlannedPatch {
   sourceFinding: Finding;
 }
 
-export async function planPatches(findings: Finding[]): Promise<{
+const META_CHECKIDS = new Set([
+  "M_title_missing",
+  "M_title_length",
+  "M_description_missing",
+  "M_description_length",
+  "M_og_incomplete",
+]);
+
+const SCHEMA_CHECKIDS = new Set([
+  "D_no_article_entity",
+  "D_WebPage_missing_required",
+  "D_WebPage_missing_recommended",
+  "D_Organization_missing_recommended",
+  "D_BlogPosting_missing_google_required",
+  "D_Article_missing_google_required",
+  "D_NewsArticle_missing_google_required",
+  "D_BlogPosting_missing_recommended",
+  "D_Article_missing_recommended",
+  "D_NewsArticle_missing_recommended",
+]);
+
+export async function planPatches(
+  findings: Finding[],
+  input?: AuditInput,
+): Promise<{
   patches: PlannedPatch[];
   cost: number;
 }> {
@@ -35,6 +61,8 @@ export async function planPatches(findings: Finding[]): Promise<{
   let cost = 0;
 
   const dedupedSpans = new Set<string>();
+  const metaFindings: Finding[] = [];
+  const schemaFindings: Finding[] = [];
 
   for (const f of findings) {
     if (f.suggestedPatch) {
@@ -62,6 +90,33 @@ export async function planPatches(findings: Finding[]): Promise<{
           sourceFinding: f,
         });
       }
+      continue;
+    }
+
+    if (META_CHECKIDS.has(f.checkId)) {
+      metaFindings.push(f);
+      continue;
+    }
+    if (SCHEMA_CHECKIDS.has(f.checkId)) {
+      schemaFindings.push(f);
+      continue;
+    }
+  }
+
+  if (input && metaFindings.length) {
+    const metaPlan = await planMetaPatches(input, metaFindings);
+    cost += metaPlan.cost;
+    for (const p of metaPlan.patches) {
+      patches.push({ patch: p, sourceFinding: metaFindings[0] });
+    }
+  }
+
+  if (input && schemaFindings.length) {
+    const schemaPlan = planSchemaPatches(input, schemaFindings);
+    for (const p of schemaPlan.patches) {
+      const source =
+        schemaFindings.find((sf) => p.rationale.includes(sf.checkId)) ?? schemaFindings[0];
+      patches.push({ patch: p, sourceFinding: source });
     }
   }
 

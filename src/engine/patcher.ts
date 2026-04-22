@@ -2,15 +2,13 @@ import { parse } from "node-html-parser";
 import type { AuditInput, Patch } from "../types.js";
 import type { PlannedPatch } from "./rewriter.js";
 import { llmRewriteSentence } from "./rewriter.js";
+import { applyMetaTagEdit } from "./handlers/meta-tag-edit.js";
+import { applyInsertSchema } from "./handlers/insert-schema.js";
 
 export interface PatchApplication {
   applied: Patch[];
   rejected: { patch: Patch; reason: string }[];
   costUsd: number;
-}
-
-function escapeRegExp(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function isHtmlValid(html: string): boolean {
@@ -82,7 +80,11 @@ export async function applyPatches(
     }
 
     if (patch.type === "regex_replace") {
-      const rx = new RegExp(escapeRegExp(patch.target) ?? patch.target, "gi");
+      // patch.target is an already-formed regex pattern from the planner
+      // (e.g. `\brobust\b`). Do NOT re-escape — that would turn the pattern
+      // into a literal-string match and break word boundaries. The planner
+      // is responsible for any escaping it needs.
+      const rx = new RegExp(patch.target, "gi");
       const hits = html.match(rx);
       if (!hits) {
         rejected.push({ patch, reason: "no regex matches" });
@@ -115,12 +117,32 @@ export async function applyPatches(
     }
 
     if (patch.type === "meta_tag_edit") {
-      rejected.push({ patch, reason: "meta_tag_edit not yet implemented" });
+      const result = applyMetaTagEdit(html, patch);
+      if (!result.ok) {
+        rejected.push({ patch, reason: result.reason ?? "meta_tag_edit failed" });
+        continue;
+      }
+      if (!isHtmlValid(result.html)) {
+        rejected.push({ patch, reason: "meta_tag_edit produced invalid HTML" });
+        continue;
+      }
+      html = result.html;
+      applied.push(patch);
       continue;
     }
 
     if (patch.type === "insert_schema") {
-      rejected.push({ patch, reason: "insert_schema not yet implemented" });
+      const result = applyInsertSchema(html, patch);
+      if (!result.ok) {
+        rejected.push({ patch, reason: result.reason ?? "insert_schema failed" });
+        continue;
+      }
+      if (!isHtmlValid(result.html)) {
+        rejected.push({ patch, reason: "insert_schema produced invalid HTML" });
+        continue;
+      }
+      html = result.html;
+      applied.push(patch);
       continue;
     }
 

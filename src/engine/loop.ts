@@ -27,8 +27,9 @@ import { computeParagraphMetrics } from "../layers/paragraph-metrics.js";
 import type { PriorRun } from "../output/history.js";
 import { diffAgainstPrior, priorFindingsFor } from "../output/history.js";
 import { reconcilePreflight } from "../output/preflight.js";
+import { extractSchemaBlocks } from "../shared-lib/validators.js";
 
-export const BLOG_BUSTER_VERSION = "0.1.2";
+export const BLOG_BUSTER_VERSION = "0.1.3";
 
 export interface LoopOptions {
   outputDir: string;
@@ -192,7 +193,7 @@ export async function auditLoop(
       }
     }
 
-    const plan = await planPatches(findings);
+    const plan = await planPatches(findings, current);
     if (!plan.patches.length) {
       writeIterationArtifacts(iterDir, iter, current);
       iterations.push(iter);
@@ -211,6 +212,16 @@ export async function auditLoop(
       stopReason = `All ${application.rejected.length} patches rejected at iteration ${i}`;
       status = "stalled";
       break;
+    }
+
+    // Re-extract JSON-LD schemas from the patched HTML. Without this the next
+    // iteration re-audits with stale `schemas` (pre-patch) and finds the
+    // same insert_schema issues again in an infinite loop.
+    const appliedSchemaPatch = application.applied.some(
+      (p) => p.type === "insert_schema" || p.type === "meta_tag_edit",
+    );
+    if (appliedSchemaPatch) {
+      nextInput.schemas = extractSchemaBlocks(nextInput.html);
     }
 
     prevOverall = scores.overall;

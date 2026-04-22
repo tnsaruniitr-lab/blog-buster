@@ -169,7 +169,16 @@ export function publish(
   return { locations };
 }
 
-export function commitRepoCopy(repoRoot: string, relPath: string, report: AuditReport): void {
+export interface CommitOptions {
+  push?: boolean;
+}
+
+export function commitRepoCopy(
+  repoRoot: string,
+  relPath: string,
+  report: AuditReport,
+  opts: CommitOptions = {},
+): void {
   const gitDir = findGitRoot(repoRoot);
   if (!gitDir) {
     console.warn(`[publisher] no git repo found at or above ${repoRoot}; skipping commit`);
@@ -189,6 +198,18 @@ export function commitRepoCopy(repoRoot: string, relPath: string, report: AuditR
   try {
     execSync(`git -C "${gitDir}" add ${paths.map((p) => `"${p}"`).join(" ")}`, { stdio: "inherit" });
     execSync(`git -C "${gitDir}" commit -m ${JSON.stringify(msg)}`, { stdio: "inherit" });
+    if (opts.push) {
+      try {
+        execSync(`git -C "${gitDir}" push`, { stdio: "inherit" });
+      } catch (pushErr) {
+        // Push failures shouldn't crash the audit flow. Commit already landed
+        // locally — operator can retry the push manually.
+        console.warn(
+          `[publisher] git push failed (commit landed locally):`,
+          (pushErr as Error).message,
+        );
+      }
+    }
   } catch (err) {
     console.warn(`[publisher] git commit failed:`, (err as Error).message);
   }
