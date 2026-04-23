@@ -6,7 +6,12 @@ import {
   entityTypes,
 } from "../../shared-lib/validators.js";
 
+// Loose match: has time (hours + minutes at minimum).
 const ISO_WITH_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
+
+// Strict match per writer-shape-spec §1.4: full ISO 8601 with seconds + timezone.
+// Either explicit offset (+05:30, -08:00) or Z for UTC.
+const ISO_FULL_WITH_TZ = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?([+-]\d{2}:\d{2}|Z)$/;
 
 function validateCustom(
   entity: Record<string, unknown>,
@@ -70,15 +75,39 @@ function validateCustom(
 
   if (checks.includes("datemodified_iso_8601_with_time")) {
     const dm = entity.dateModified;
-    if (typeof dm === "string" && !ISO_WITH_TIME.test(dm)) {
+    if (typeof dm === "string") {
+      if (!ISO_WITH_TIME.test(dm)) {
+        findings.push({
+          checkId: "D_datemodified_missing_time",
+          layer: "technical",
+          severity: "warn",
+          evidence: `dateModified "${dm}" should include time (ISO 8601 with T)`,
+          sieveRules: [],
+          sieveAps: [],
+          truthBadge: "hard",
+        });
+      } else if (!ISO_FULL_WITH_TZ.test(dm)) {
+        findings.push({
+          checkId: "D_datemodified_missing_timezone",
+          layer: "technical",
+          severity: "warn",
+          evidence: `dateModified "${dm}" has time but is missing seconds and/or timezone offset — prefer full ISO 8601 (e.g. "2026-04-23T14:45:12Z" or "...+05:30")`,
+          sieveRules: [],
+          sieveAps: [],
+          truthBadge: "hard",
+        });
+      }
+    }
+    const dp = entity.datePublished;
+    if (typeof dp === "string" && dp.length > 0 && !ISO_FULL_WITH_TZ.test(dp)) {
       findings.push({
-        checkId: "D_datemodified_missing_time",
+        checkId: "D_datepublished_not_full_iso",
         layer: "technical",
-        severity: "warn",
-        evidence: `dateModified "${dm}" should include time (ISO 8601 with T)`,
+        severity: "info",
+        evidence: `datePublished "${dp}" not full ISO 8601 with timezone — tighten to e.g. "2026-04-23T10:30:00+05:30"`,
         sieveRules: [],
         sieveAps: [],
-        truthBadge: "hard",
+        truthBadge: "static",
       });
     }
   }
