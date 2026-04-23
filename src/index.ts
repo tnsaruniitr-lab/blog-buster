@@ -1,8 +1,7 @@
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, readFileSync, existsSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
-import { existsSync } from "node:fs";
 import { auditLoop, BLOG_BUSTER_VERSION } from "./engine/loop.js";
 import { loadFromDirectory } from "./input/from-directory.js";
 import { loadFromPostObject, type BloggerPost } from "./input/from-post-object.js";
@@ -192,9 +191,24 @@ export async function audit(opts: AuditOptions): Promise<AuditResult> {
     }
   }
 
+  // Pass the final (post-inner-loop) HTML so the instructions builder can
+  // generate paragraph-scoped style patches and disambiguate LLM-judge
+  // before-strings against the actual document state.
+  const finalIter = report.iterations[report.iterations.length - 1];
+  let finalHtml: string | null = null;
+  if (finalIter?.htmlSnapshotPath && existsSync(finalIter.htmlSnapshotPath)) {
+    try {
+      finalHtml = readFileSync(finalIter.htmlSnapshotPath, "utf-8");
+    } catch {
+      // If the snapshot can't be read, fall through to null — style fan-out
+      // and judge-patch disambiguation become no-ops, not errors.
+    }
+  }
+
   const shakespeerInstructions = buildShakespeerInstructions(
     report,
     opts.targetScore ?? 90,
+    finalHtml,
   );
 
   const elapsedMs = Date.now() - callStart;
