@@ -28,8 +28,9 @@ import type { PriorRun } from "../output/history.js";
 import { diffAgainstPrior, priorFindingsFor } from "../output/history.js";
 import { reconcilePreflight } from "../output/preflight.js";
 import { extractSchemaBlocks } from "../shared-lib/validators.js";
+import { BUILD_INFO } from "../build-info.js";
 
-export const BLOG_BUSTER_VERSION = "0.1.3";
+export const BLOG_BUSTER_VERSION = BUILD_INFO.version;
 
 export interface LoopOptions {
   outputDir: string;
@@ -285,6 +286,7 @@ export async function auditLoop(
     confirmedFindings: lastConfirmed,
     rejectedFindings: lastRejected,
     blogBusterVersion: BLOG_BUSTER_VERSION,
+    buildInfo: BUILD_INFO,
     scoreWeights: effectiveWeights,
     startedAt,
     completedAt: new Date().toISOString(),

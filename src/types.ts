@@ -19,6 +19,16 @@ export interface ScoreWeights {
   quality: number;
 }
 
+export interface BuildInfo {
+  version: string;
+  gitSha: string;
+  gitShaShort: string;
+  gitBranch: string;
+  gitDirty: boolean;
+  builtAt: string;
+  nodeVersion: string;
+}
+
 export type Severity = "critical" | "fail" | "warn" | "info";
 
 export type PostType =
@@ -141,6 +151,7 @@ export interface AuditReport {
   confirmedFindings: string[];
   rejectedFindings: RejectedPreflightFinding[];
   blogBusterVersion: string;
+  buildInfo: BuildInfo;
   scoreWeights: ScoreWeights;
   startedAt: string;
   completedAt: string;

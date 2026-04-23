@@ -15,9 +15,17 @@ import {
 import { writeReport } from "./output/disk-writer.js";
 import { loadHistory, type PriorRun } from "./output/history.js";
 import { buildShakespeerInstructions } from "./output/shakespeer-instructions.js";
+import {
+  BUILD_INFO,
+  VERSION as BUILD_VERSION,
+  assertVersion,
+  assertAtLeast,
+  buildInfoBanner,
+} from "./build-info.js";
 import type {
   AuditInput,
   AuditReport,
+  BuildInfo,
   ParagraphMetric,
   PreflightFinding,
   PriorIssueStatus,
@@ -27,7 +35,8 @@ import type {
 } from "./types.js";
 import type { ShakespeerInstructionsPayload } from "./output/shakespeer-instructions.js";
 
-export const VERSION = BLOG_BUSTER_VERSION;
+export const VERSION = BUILD_VERSION;
+export { BUILD_INFO, assertVersion, assertAtLeast, buildInfoBanner };
 
 export interface AuditOptions {
   // input (exactly one required)
@@ -84,6 +93,7 @@ export interface AuditResult {
   confirmedFindings: string[];
   rejectedFindings: RejectedPreflightFinding[];
   blogBusterVersion: string;
+  buildInfo: BuildInfo;
   scoreWeights: ScoreWeights;
   publishedLocations: PublishResult["locations"];
   fullReport: AuditReport;
@@ -121,9 +131,19 @@ export async function audit(opts: AuditOptions): Promise<AuditResult> {
     throw new Error("audit() requires either sourceDir or generatedPost");
   }
 
+  const callStart = Date.now();
   const input: AuditInput = opts.sourceDir
     ? loadFromDirectory(opts.sourceDir)
     : loadFromPostObject(opts.generatedPost as BloggerPost);
+
+  // Acknowledge-on-invoke: every audit() call leaves a stderr trace. Even
+  // when publishToLocal=false and publishToRepo=false (no disk artifacts),
+  // this line confirms the call reached blog-buster. See build-info.ts.
+  const priorRunsSource = opts.priorRuns !== undefined ? "caller" : "disk-scan";
+  const priorRunsCount = opts.priorRuns?.length ?? "?";
+  process.stderr.write(
+    `[${buildInfoBanner()}] audit() START brand="${input.brand}" slug="${input.slug}" priorRuns=${priorRunsCount} (${priorRunsSource}) runLlmLayers=${opts.runLlmLayers ?? true}\n`,
+  );
 
   const repoRoot = opts.repoRoot ?? resolveRepoRoot();
   const repoAuditRoot = join(repoRoot, "audit-reports");
@@ -177,6 +197,11 @@ export async function audit(opts: AuditOptions): Promise<AuditResult> {
     opts.targetScore ?? 90,
   );
 
+  const elapsedMs = Date.now() - callStart;
+  process.stderr.write(
+    `[${buildInfoBanner()}] audit() DONE  brand="${input.brand}" slug="${input.slug}" version=v${report.version}${report.isFinal ? " FINAL" : ""} verdict=${report.verdict} score=${report.finalScore} iters=${report.iterations.length} cost=$${report.totalCostUsd.toFixed(4)} elapsed=${(elapsedMs / 1000).toFixed(1)}s\n`,
+  );
+
   return {
     version: report.version,
     isFinal: report.isFinal,
@@ -196,6 +221,7 @@ export async function audit(opts: AuditOptions): Promise<AuditResult> {
     confirmedFindings: report.confirmedFindings,
     rejectedFindings: report.rejectedFindings,
     blogBusterVersion: report.blogBusterVersion,
+    buildInfo: report.buildInfo,
     scoreWeights: report.scoreWeights,
     publishedLocations: publishResult.locations,
     fullReport: report,
@@ -207,6 +233,7 @@ export type { PriorRun } from "./output/history.js";
 export type {
   AuditReport,
   AuditInput,
+  BuildInfo,
   ParagraphMetric,
   PreflightFinding,
   PriorIssueStatus,

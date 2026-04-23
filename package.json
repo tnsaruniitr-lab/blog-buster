@@ -1,6 +1,6 @@
 {
   "name": "blog-buster",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
@@ -23,7 +23,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsc && cp src/shared-lib/*.json dist/shared-lib/",
+    "build": "tsc && cp src/shared-lib/*.json dist/shared-lib/ && node scripts/emit-build-info.mjs",
     "audit": "tsx src/cli.ts",
     "dev": "tsx watch src/cli.ts",
     "typecheck": "tsc --noEmit",
